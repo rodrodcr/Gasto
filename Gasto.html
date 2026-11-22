@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="es-CR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F7FA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gasto Claro">
+<title>Gasto Claro</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;650;700;750&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" async></script>
+<style>
+:root{color-scheme:light;--base:#F4F7FA;--paper:#fff;--line:#E2E8F0;--ink:#0F172A;--muted:#52647a;--mint:#0D9488;--mint-ink:#096b61;--mint-soft:#e7f5f0;--amber:#D97706;--amber-ink:#995508;--red:#B91C1C;--warm:#fff1ed;--shadow:0 8px 30px rgba(15,23,42,.02);--serif:"DM Serif Display",Georgia,serif;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--base);color:var(--ink);font-synthesis:none}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100vh}
+button,input,select{font:inherit}
+button{touch-action:manipulation;cursor:pointer;color:inherit}
+button,input,select{min-height:44px}
+button{transition:background-color .2s ease-out,border-color .2s ease-out,transform .2s ease-out,color .2s ease-out}
+button:active:not(:disabled){transform:scale(.977)}
+button:disabled{opacity:.48;cursor:default}
+:focus-visible{outline:2px solid var(--mint-ink);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+h2{font-size:1.24rem;font-weight:750;letter-spacing:-.035em}
+h3{font-size:1rem;font-weight:700;letter-spacing:-.024em}
+[hidden]{display:none!important}
+svg{width:19px;height:19px;flex:none;vertical-align:middle}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.shell{max-width:1136px;margin:auto;padding-inline:clamp(16px,5vw,54px)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-block:calc(17px + env(safe-area-inset-top)) 17px}
+.brand{display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:750;letter-spacing:-.025em}
+.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;color:#fff;background:#145b50}
+.mark svg{width:21px;height:21px}
+.control{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:12px;padding:8px 13px;background:var(--paper);font-weight:650;font-size:.84rem;line-height:1.3;min-width:44px}
+.control:hover,.row-icon:hover{background:var(--mint-soft)}
+.primary{background:#0c6e63;color:white;border-color:transparent}
+.primary:hover{background:#095e55}
+.danger{background:var(--warm);color:var(--red);border-color:transparent}
+.danger:hover,.row-icon.danger-icon:hover{background:#ffe4db}
+.icon-only{padding:0}
+main{padding-block:clamp(22px,5vw,42px) calc(104px + env(safe-area-inset-bottom))}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:19px}
+h1{font:400 clamp(2.55rem,6vw,4.75rem)/.98 var(--serif);letter-spacing:-.055em}
+.cycle{color:var(--muted);font-size:.83rem;font-weight:600}
+.summary{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);min-height:200px;border:1px solid #dceae6;border-radius:25px;background:#fbfefc;box-shadow:var(--shadow);overflow:hidden}
+.summary-focus{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(130deg,#f4faf7,#e7f5ed);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:9px;padding:clamp(19px,4vw,37px)}
+.summary-focus::before,.summary-focus::after{content:"";position:absolute;z-index:-1;border:1px solid #8cc1ae59;border-radius:50%;width:300px;height:300px;right:-121px;bottom:-182px;box-shadow:0 0 0 24px #aad1c31c,0 0 0 49px #aad1c318,0 0 0 75px #aad1c313;pointer-events:none}
+.summary-focus::after{right:-150px;bottom:-210px;box-shadow:none}
+.summary-focus.over{background:linear-gradient(125deg,#fffaf8,#f9eeea)}
+.label{color:var(--muted);font-size:.82rem;font-weight:650}
+.available{font:400 clamp(2.05rem,6.2vw,4.25rem)/1.04 var(--serif);letter-spacing:-.052em;overflow-wrap:anywhere;max-width:100%;font-variant-numeric:tabular-nums}
+.available.over,.avail-note.over,.amount.over{color:var(--red)}
+.avail-note{font-size:.83rem;color:var(--mint-ink);font-weight:650}
+.avail-note.warn{color:var(--amber-ink)}
+.summary-totals{display:grid;align-content:center;gap:12px;padding:clamp(17px,3.3vw,31px)}
+.metric{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+.amount{font-variant-numeric:tabular-nums;font-weight:750;letter-spacing:-.045em;overflow-wrap:anywhere}
+.metric b{font-size:clamp(.98rem,3vw,1.2rem)}
+.meter{display:block;height:3px;border-radius:5px;background:#e1eae9;overflow:hidden}
+.meter span{display:block;height:100%;width:var(--left);background:var(--mint);border-radius:inherit;transition:width .32s ease-out}
+.meter.warn span{background:var(--amber)}
+.meter.over{background:#edb9ad}.meter.over span{background:var(--red)}
+.block{margin-top:clamp(23px,5vw,37px)}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+.section-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.selector{border-radius:100px}
+.selector[aria-pressed=true]{color:var(--mint-ink);background:var(--mint-soft);border-color:#baded0}
+.carousel{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(225px,49vw,282px);gap:11px;overflow:auto;scroll-snap-type:x proximity;padding:3px 3px 8px;scrollbar-width:thin;scrollbar-color:#b4cfca transparent}
+.card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 49px;scroll-snap-align:start;background:var(--paper);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow);min-width:0}
+.card.is-active{border-color:#60a99c;box-shadow:0 0 0 1px #60a99c}
+.card-body{grid-column:1 / -1;border:0;background:transparent;padding:15px 16px 16px;display:grid;gap:8px;text-align:start;min-width:0;width:100%;border-radius:inherit}
+.card-body:hover{background:#f7fbf9}
+.card-top{display:flex;align-items:center;gap:8px;padding-right:36px;min-width:0}
+.card-top strong{overflow-wrap:anywhere;font-weight:750;font-size:.88rem}
+.avatar{display:inline-grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:var(--avatar,#e3f2ec);color:#24443e;font-size:.72rem;font-weight:750}
+.card .available{font-size:clamp(1.6rem,5vw,2.23rem);margin-top:4px}
+.card-mini{font-size:.77rem;color:var(--muted)}
+.card-mini.over{color:var(--red)}.card-mini.warn{color:var(--amber-ink)}
+.card-edit{position:absolute;top:8px;right:8px}
+.card .meter{margin-top:5px}
+.row-icon{border:0;background:transparent;border-radius:10px;min-width:44px;padding:0;color:var(--muted);display:grid;place-items:center}
+.row-icon svg{width:16px;height:16px}
+.row-icon.danger-icon{color:#9a3631}
+.activity{border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow);border-radius:19px;overflow:hidden}
+.activity-head small{color:var(--muted);font-weight:600;overflow-wrap:anywhere}
+.date-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#f8fafb;color:var(--muted);font-weight:650;font-size:.76rem;border-block-end:1px solid var(--line)}
+.day+.day{border-top:1px solid var(--line)}
+.expense{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto) auto;align-items:center;gap:7px;padding:8px 11px 8px 15px}
+.expense+.expense{border-top:1px solid #edf0f4}
+.expense-info{display:flex;align-items:center;gap:9px;min-width:0}
+.receipt,.empty-icon{display:grid;place-items:center;flex:none;background:#edf5f3;color:var(--mint-ink);border-radius:11px;width:35px;height:35px}
+.receipt svg{width:17px;height:17px}
+.expense-text{min-width:0}
+.expense-text strong{display:block;font-size:.89rem;font-weight:750;overflow-wrap:anywhere}
+.row-meta{display:flex;gap:5px 8px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.location{color:var(--muted);font-size:.76rem;overflow-wrap:anywhere}
+.location svg{width:12px;height:12px}
+.buyer{background:var(--avatar,#e3f2ec);color:#26443e;font-size:.68rem;border-radius:30px;padding:3px 7px;max-width:100%;overflow-wrap:anywhere;font-weight:650}
+.row-actions{display:flex;align-items:center}
+.row-amount{text-align:right;font-size:.92rem;max-width:13rem}
+.empty{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--line);background:var(--paper);border-radius:19px;padding:18px;box-shadow:var(--shadow)}
+.activity .empty{border:0;border-radius:0;box-shadow:none}
+.empty h3{margin-bottom:4px}
+.empty p,.soft-text{font-size:.83rem;line-height:1.55;color:var(--muted);overflow-wrap:anywhere}
+.fab{position:fixed;z-index:2;right:max(17px,calc((100vw - 1030px)/2));bottom:calc(17px + env(safe-area-inset-bottom));display:inline-flex;gap:8px;align-items:center;justify-content:center;border:1px solid #08594f;border-radius:18px;padding:0 18px;height:55px;background:#0c6e63;color:#fff;box-shadow:0 7px 22px #0c6e632d;font-size:.88rem;font-weight:750}
+.fab:hover{background:#095f55}
+dialog{position:fixed;inset:auto 0 var(--keyboard-gap,0px);margin:0 auto;padding:0;width:min(100%,565px);max-width:100%;max-height:none;overflow:hidden;border:1px solid var(--line);border-bottom:0;border-radius:25px 25px 0 0;background:#fff;color:var(--ink);overscroll-behavior:contain}
+dialog[open]{animation:lift .24s ease-out}
+dialog.leaving{animation:drop .19s ease-out forwards}
+dialog::backdrop{background:#15253260;backdrop-filter:blur(2px)}
+@keyframes lift{from{transform:translateY(22px);opacity:.56}to{transform:translateY(0);opacity:1}}
+@keyframes drop{to{transform:translateY(22px);opacity:0}}
+/* Keep the header and footer outside the form's scrollable region. */
+.sheet-form{margin:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:min(calc(var(--viewport-height,100dvh) - 13px),760px);min-width:0}
+.sheet-head,.sheet-body,.sheet-foot{padding:13px clamp(14px,4vw,24px);min-width:0}
+.sheet-head,.sheet-foot{background:#fff}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.sheet-body{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:12px;min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding-block:8px}
+.sheet-foot{border-top:1px solid var(--line);padding-bottom:max(13px,env(safe-area-inset-bottom));display:flex;gap:8px;flex-wrap:wrap}
+dialog[data-keyboard] .sheet-head,dialog[data-keyboard] .sheet-foot{padding-block:7px}
+#sheet-title:focus{outline:none}
+.sheet-foot .primary{flex:1}
+.field{display:grid;gap:5px;font-size:.83rem;font-weight:650;min-width:0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+input,select{border:1px solid var(--line);background:#fbfcfd;color:var(--ink);border-radius:11px;padding:9px 10px;min-width:0;width:100%;font-size:1rem}
+input::placeholder{color:var(--muted);opacity:1}
+.sheet-body input[type=date]{max-width:100%;display:block}
+.sheet-body input[type=date]::-webkit-date-and-time-value{min-height:1.2em;text-align:start}
+.amount-entry{display:flex;align-items:center;gap:6px;background:#f2f8f6;border:1px solid #dcebe6;border-radius:14px;padding-inline-start:12px}
+.amount-entry:focus-within{outline:2px solid var(--mint-ink);outline-offset:2px}
+.amount-entry span{font-weight:700;color:var(--mint-ink);flex:none}
+.amount-entry input{flex:1 1 0;min-width:0;outline:none;background:transparent;border:0;min-height:56px;font-size:1.8rem;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.055em}
+fieldset{padding:0;margin:0;border:0;min-inline-size:0}
+legend{font-weight:650;font-size:.83rem;padding:0;margin-bottom:6px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{max-width:100%;overflow-wrap:anywhere;justify-content:flex-start;border-radius:100px}
+.pill[aria-pressed=true]{background:var(--mint-soft);border-color:#7bbfb1;color:var(--mint-ink)}
+.swatch{width:18px;height:18px;border-radius:50%;background:var(--avatar);border:1px solid #819991}
+.backup-options{display:grid;gap:7px}
+.backup-options .control{justify-content:flex-start}
+.error{color:var(--red);font-size:.83rem;font-weight:650}
+.toast{position:fixed;z-index:3;left:50%;bottom:calc(83px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:calc(100% - 24px);width:max-content;padding:10px 13px;border-radius:12px;background:#16463e;color:#fff;font-size:.86rem;box-shadow:var(--shadow);overflow-wrap:anywhere}
+@media(max-width:620px){
+  .summary{grid-template-columns:minmax(0,1fr);min-height:0}
+  .summary-focus{min-height:128px}
+  .summary-totals{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .summary-totals .meter{grid-column:1/-1}
+  .metric{flex-direction:column;gap:2px}
+  .carousel{grid-auto-columns:min(78vw,260px)}
+  .back-label{display:none}
+  .expense-info .receipt{display:none}
+}
+@media(max-width:365px){.fields{grid-template-columns:1fr}.expense{grid-template-columns:minmax(0,1fr) minmax(0,auto);gap:3px}.row-actions{grid-column:2;justify-content:flex-end}.section-controls{gap:5px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="shell"><div class="top flex items-center justify-between">
+  <div class="brand"><span class="mark" id="brand-icon"></span>Gasto Claro</div>
+  <button class="control transition-all duration-200 ease-out" data-action="settings" aria-label="Respaldos y ciclo"><span data-icon="settings"></span><span class="back-label">Respaldos y ciclo</span></button>
+</div></header>
+<main id="app" class="shell"></main>
+<button class="fab transition-all duration-200 ease-out" data-action="new-expense" aria-label="Nuevo gasto" type="button"><span data-icon="plus"></span><span>Nuevo gasto</span></button>
+<dialog id="sheet" aria-labelledby="sheet-title"></dialog>
+<input type="file" id="restore-input" accept="application/json,.json" hidden>
+<div id="toast" class="toast" role="status" hidden></div>
+<noscript><p class="shell">Activa JavaScript para registrar tus gastos.</p></noscript>
+<script id="domain">
+'use strict';
+const Budget = (() => {
+  const currencies = ['CRC','USD','EUR','MXN'];
+  const colors = ['#d7efe4','#dceaf7','#eee3f4','#f6e8d5','#f3dedc','#e8edce'];
+  const key = 'gasto-claro.nordic.v1';
+  const safe = BigInt(Number.MAX_SAFE_INTEGER);
+  const validAmount = (value, min) => Number.isSafeInteger(value) && value >= min;
+  const validText = (value, size) => typeof value === 'string' && value.trim() !== '' && value.length <= size;
+  const validId = value => typeof value === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(value);
+  function dateOnly(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(value + 'T12:00:00Z');
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0,10) === value;
+  }
+  function today(now = new Date()) {
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0,10);
+  }
+  function parseCents(value) {
+    let normalized = value.trim().replace(/[\u00a0\u202f]/g,' ');
+    if (/^\d{1,3}(?: \d{3})+(?:[.,]\d{1,2})?$/.test(normalized)) normalized = normalized.replace(/ /g,'');
+    if (/^\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?$/.test(normalized)) normalized = normalized.replace(/,/g,'');
+    else if (/^\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?$/.test(normalized)) normalized = normalized.replace(/\./g,'');
+    const parts = /^(\d+)(?:[.,](\d{1,2}))?$/.exec(normalized);
+    if (!parts) return null;
+    const cents = BigInt(parts[1] + (parts[2] ?? '').padEnd(2,'0'));
+    return cents <= safe ? Number(cents) : null;
+  }
+  function amounts(budget, spent) {
+    const remaining = budget - spent;
+    const style = remaining < 0n ? 'over' : budget > 0n && spent * 100n > budget * 85n ? 'warn' : '';
+    return {budget,spent,remaining,style,percentage:budget > 0n ? spent * 10000n / budget : null,
+      bar:budget === 0n || remaining < 0n ? 0 : Number(remaining * 10000n / budget) / 100};
+  }
+  function overview(state) {
+    const byPerson = new Map(state.people.map(person => [person.id,0n]));
+    let totalSpent = 0n;
+    let totalBudget = 0n;
+    for (const person of state.people) totalBudget += BigInt(person.budget);
+    for (const purchase of state.expenses) {
+      const spent = BigInt(purchase.amount);
+      byPerson.set(purchase.personId,byPerson.get(purchase.personId) + spent);
+      totalSpent += spent;
+    }
+    return {group:amounts(totalBudget,totalSpent),byPerson:new Map(state.people.map(person =>
+      [person.id,amounts(BigInt(person.budget),byPerson.get(person.id))]))};
+  }
+  function fresh() {
+    return {schema:1,currency:'CRC',cycle:today(),people:[],expenses:[],lastBuyer:null};
+  }
+  function validate(source) {
+    const fail = () => {throw new Error('El archivo no contiene un respaldo válido de Gasto Claro v2.');};
+    if (!source || source.schema !== 1 || !currencies.includes(source.currency) || !dateOnly(source.cycle)
+      || !Array.isArray(source.people) || !Array.isArray(source.expenses)) fail();
+    const personIds = new Set();
+    const people = source.people.map(person => {
+      if (!person || !validId(person.id) || personIds.has(person.id) || !validText(person.name,60)
+        || !colors.includes(person.color) || !validAmount(person.budget,0)) fail();
+      personIds.add(person.id);
+      return {id:person.id,name:person.name.trim(),color:person.color,budget:person.budget};
+    });
+    const expenseIds = new Set();
+    const expenses = source.expenses.map(expense => {
+      if (!expense || !validId(expense.id) || expenseIds.has(expense.id) || !personIds.has(expense.personId)
+        || !validText(expense.title,100) || !validText(expense.place,100) || !validAmount(expense.amount,1)
+        || !dateOnly(expense.date)) fail();
+      expenseIds.add(expense.id);
+      return {id:expense.id,personId:expense.personId,title:expense.title.trim(),place:expense.place.trim(),amount:expense.amount,date:expense.date};
+    });
+    const lastBuyer = source.lastBuyer ?? null;
+    if (lastBuyer !== null && !personIds.has(lastBuyer)) fail();
+    return {schema:1,currency:source.currency,cycle:source.cycle,people,expenses,lastBuyer};
+  }
+  function byDate(expenses, personId) {
+    const days = new Map();
+    for (const item of [...expenses].reverse().sort((a,b) => b.date.localeCompare(a.date))) {
+      if (personId && item.personId !== personId) continue;
+      if (!days.has(item.date)) days.set(item.date,{total:0n,items:[]});
+      const day = days.get(item.date);
+      day.items.push(item);
+      day.total += BigInt(item.amount);
+    }
+    return days;
+  }
+  return {currencies,colors,key,dateOnly,today,parseCents,overview,fresh,validate,byDate};
+})();
+
+const Storage = (() => {
+  let current;
+  let startupError = false;
+  function read() {
+    const raw = localStorage.getItem(Budget.key);
+    return raw ? Budget.validate(JSON.parse(raw)) : Budget.fresh();
+  }
+  try {current = read();} catch {current = Budget.fresh();startupError = true;}
+  async function change(update) {
+    function write() {
+      const next = read();
+      update(next);
+      const canonical = Budget.validate(next);
+      localStorage.setItem(Budget.key,JSON.stringify(canonical));
+      current = canonical;
+    }
+    if (location.protocol !== 'file:' && navigator.locks) await navigator.locks.request(Budget.key,write);
+    else write();
+  }
+  return {change, startupError, refresh(){current=read();}, get state(){return current;}};
+})();
+</script>
+<script id="interface">
+'use strict';
+const symbols = {
+  brand:'<path d="M4 17h16M6 14l4-4 3 2 5-6"/><path d="M15 6h3v3"/>',
+  settings:'<path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="2" fill="white"/><circle cx="15" cy="12" r="2" fill="white"/><circle cx="10" cy="17" r="2" fill="white"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M17 5a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 5v1"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6m-6 4h6"/>',
+  pin:'<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2"/>',
+  edit:'<path d="m5 15 10-10a2.8 2.8 0 0 1 4 4L9 19l-5 1 1-5Zm8-8 4 4"/>',
+  trash:'<path d="M4 7h16m-10-3h4l1 3M6 7l1 13h10l1-13M10 11v5m4-5v5"/>',
+  close:'<path d="m6 6 12 12M18 6 6 18"/>',
+  download:'<path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/>',
+  upload:'<path d="M12 15V3m-4 4 4-4 4 4M5 17v3h14v-3"/>',
+  reset:'<path d="M4 11a8 8 0 1 1 2 6M4 5v6h6"/>'
+};
+const $ = selector => document.querySelector(selector);
+const app = $('#app');
+const dialog = $('#sheet');
+const toast = $('#toast');
+const inputFile = $('#restore-input');
+const dateFormat = new Intl.DateTimeFormat('es-CR',{dateStyle:'long',timeZone:'UTC'});
+const shortDate = new Intl.DateTimeFormat('es-CR',{dateStyle:'medium',timeZone:'UTC'});
+const decimals = new Intl.NumberFormat('es-CR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const currencies = new Map(Budget.currencies.map(currency => [currency,new Intl.NumberFormat('es-CR',{
+  style:'currency',currency,currencyDisplay:'narrowSymbol',minimumFractionDigits:2,maximumFractionDigits:2
+})]));
+let activePerson = null;
+let restoreFocusTo = null;
+let savePending = false;
+let closeTimer;
+let toastTimer;
+
+function icon(name) {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + symbols[name] + '</svg>';
+}
+function escape(value) {
+  const html = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+  return String(value ?? '').replace(/[&<>"']/g,letter => html[letter]);
+}
+function money(number, currency = Storage.state.currency) {
+  const cents = BigInt(number);
+  const positive = cents < 0n ? -cents : cents;
+  const whole = positive / 100n;
+  const signed = cents < 0n ? (whole === 0n ? -0 : -whole) : whole;
+  return currencies.get(currency).formatToParts(signed).map(part =>
+    part.type === 'fraction' ? String(positive % 100n).padStart(2,'0') : part.value).join('');
+}
+function numberInput(amount) {
+  const integer = BigInt(amount);
+  return integer / 100n + ',' + String(integer % 100n).padStart(2,'0');
+}
+function ratio(basisPoints) {
+  const fraction = basisPoints % 100n;
+  const parts = decimals.formatToParts(basisPoints / 100n);
+  const lastDigits = fraction ? String(fraction).padStart(2,'0').replace(/0$/,'') : '';
+  return parts.filter(part => part.type !== 'fraction' && (part.type !== 'decimal' || lastDigits))
+    .map(part => part.value).join('') + lastDigits + ' %';
+}
+function id() {
+  return globalThis.crypto?.randomUUID?.() ?? Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+}
+function dt(value, format = dateFormat) {return format.format(new Date(value + 'T12:00:00Z'));}
+function initial(name) {return name.split(/\s+/).slice(0,2).map(word => Array.from(word)[0]).join('').toLocaleUpperCase('es-CR');}
+function avatar(person) {return '<span class="avatar" aria-hidden="true" style="--avatar:' + person.color + '">' + escape(initial(person.name)) + '</span>';}
+function button(label,command,type = 'control',glyph = '',extra = '') {
+  return `<button type="button" class="${type} transition-all duration-200 ease-out" data-action="${command}" ${extra}>${glyph ? icon(glyph) : ''}${label}</button>`;
+}
+function iconButton(label,command,glyph,extra = '',type = 'row-icon') {
+  return button('',command,type,glyph,`aria-label="${escape(label)}" title="${escape(label)}" ${extra}`);
+}
+function progress(sums) {
+  return `<span class="meter ${sums.style}" aria-hidden="true"><span style="--left:${sums.bar}%"></span></span>`;
+}
+function status(sums) {
+  if (sums.remaining < 0n) return 'Sobre el límite';
+  if (sums.budget === 0n) return 'Sin presupuesto asignado';
+  if (sums.remaining === 0n) return 'Presupuesto agotado';
+  return ratio(sums.percentage) + ' utilizado';
+}
+function empty(name,title,message) {
+  return `<div class="empty"><span class="empty-icon">${icon(name)}</span><div><h3>${title}</h3><p>${message}</p></div></div>`;
+}
+function render() {
+  const state = Storage.state;
+  if (activePerson && !state.people.some(person => person.id === activePerson)) activePerson = null;
+  const {group,byPerson} = Budget.overview(state);
+  const selected = state.people.find(person => person.id === activePerson);
+  const carousel = $('#carousel');
+  const scroll = carousel?.scrollLeft ?? 0;
+  const individualCards = state.people.map(person => {
+    const values = byPerson.get(person.id);
+    const active = activePerson === person.id;
+    return `<article class="card ${active ? 'is-active' : ''}">
+      <button type="button" class="card-body transition-all duration-200 ease-out" data-action="filter" data-id="${person.id}" aria-pressed="${active}" aria-controls="activity">
+        <span class="card-top">${avatar(person)}<strong>${escape(person.name)}</strong></span>
+        <span class="available ${values.style}">${money(values.remaining)}</span>
+        <span class="card-mini ${values.style}">${values.remaining < 0n ? 'Sobre el límite' : 'Disponible'}</span>
+        <span class="card-mini">Presupuesto ${money(person.budget)}${values.style === 'warn' ? ' · ' + status(values) : ''}</span>
+        ${progress(values)}
+      </button>
+      ${iconButton('Editar a ' + person.name,'edit-person','edit','data-id="' + person.id + '"','row-icon card-edit')}
+    </article>`;
+  }).join('');
+  app.innerHTML = `<div class="page-head"><h1>Presupuestos</h1><span class="cycle">Ciclo desde el ${dt(state.cycle,shortDate)} · ${state.currency}</span></div>
+    <section class="summary" aria-label="Resumen global">
+      <div class="summary-focus ${group.style}"><p class="label">Saldo disponible del grupo</p>
+        <p class="available ${group.style}">${money(group.remaining)}</p><p class="avail-note ${group.style}">${status(group)}</p></div>
+      <div class="summary-totals"><p class="metric"><span class="label">Presupuesto total</span><b class="amount">${money(group.budget)}</b></p>
+        <p class="metric"><span class="label">Gasto total</span><b class="amount">${money(group.spent)}</b></p>${progress(group)}</div>
+    </section>
+    <section class="block" aria-labelledby="people-title">
+      <div class="section-heading"><h2 id="people-title">Personas</h2><div class="section-controls flex items-center gap-2">
+        ${button('Todos','filter','control selector','','data-id="" aria-pressed="' + !activePerson + '" aria-controls="activity"')}
+        ${button('Persona','new-person','control','plus','aria-label="Agregar persona"')}</div></div>
+      ${state.people.length ? `<div class="carousel" id="carousel" aria-label="Presupuestos individuales">${individualCards}</div>` :
+        empty('people','Agrega a la primera persona','Asígnale un presupuesto para empezar a registrar sus compras.')}
+    </section>
+    <section class="block" aria-labelledby="activity-title">
+      <div class="section-heading activity-head"><h2 id="activity-title" tabindex="-1">Actividad</h2>
+        <small id="activity-scope">${selected ? escape(selected.name) + ' · ' + money(byPerson.get(selected.id).remaining) + (byPerson.get(selected.id).remaining < 0n ? ' sobre el límite' : ' disponibles') : 'Todos'}</small></div>
+      <div class="activity" id="activity">${history(state)}</div>
+    </section>`;
+  if (carousel) $('#carousel')?.scrollTo({left:scroll});
+}
+function history(state) {
+  const days = Budget.byDate(state.expenses,activePerson);
+  if (!days.size) return empty('receipt','Sin gastos registrados',activePerson ?
+    'Las compras de esta persona aparecerán aquí.' : 'Usa el botón + para registrar la primera compra.');
+  const people = new Map(state.people.map(person => [person.id,person]));
+  return [...days].map(([day,group]) => `<section class="day" aria-label="${dt(day)}">
+    <h3 class="date-head"><span>${dt(day)}</span><span class="amount">${money(group.total)}</span></h3>
+    ${group.items.map(expense => {
+      const person = people.get(expense.personId);
+      const attr = 'data-id="' + expense.id + '"';
+      return `<div class="expense">
+        <div class="expense-info"><span class="receipt">${icon('receipt')}</span><div class="expense-text">
+          <strong>${escape(expense.title)}</strong><div class="row-meta">
+          <span class="location">${icon('pin')} ${escape(expense.place)}</span>
+          <span class="buyer" style="--avatar:${person.color}">${escape(person.name)}</span></div></div></div>
+        <span class="amount row-amount">${money(expense.amount)}</span>
+        <div class="row-actions flex items-center">
+          ${iconButton('Editar gasto: ' + expense.title,'edit-expense','edit',attr)}
+          ${iconButton('Eliminar gasto: ' + expense.title,'delete-expense','trash',attr,'row-icon danger-icon')}</div>
+      </div>`;
+    }).join('')}</section>`).join('');
+}
+function announce(message) {
+  clearTimeout(toastTimer);
+  toast.hidden = false;
+  toast.textContent = message;
+  toastTimer = setTimeout(() => {toast.hidden = true;},4200);
+}
+function formField(label,name,attributes) {
+  return `<label class="field">${label}<input name="${name}" ${attributes}></label>`;
+}
+function value(form,name) {return String(new FormData(form).get(name) ?? '').trim();}
+function submit(label,type = 'control primary') {return '<button type="submit" class="' + type + '">' + label + '</button>';}
+function closeSheet(animate = true) {
+  if (!dialog.open) return;
+  clearTimeout(closeTimer);
+  if (animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    dialog.classList.add('leaving');
+    closeTimer = setTimeout(() => dialog.close(),195);
+  } else dialog.close();
+}
+function sheet(title,body,footer = '',onSubmit,focus) {
+  clearTimeout(closeTimer);
+  dialog.classList.remove('leaving');
+  if (!dialog.open) restoreFocusTo = document.activeElement;
+  dialog.innerHTML = `<form class="sheet-form"><div class="sheet-head"><h2 id="sheet-title" tabindex="-1" ${focus ? '' : 'autofocus'}>${title}</h2>${iconButton('Cerrar','close','close')}</div>
+    <div class="sheet-body">${body}<p class="error" role="alert" hidden></p></div>
+    ${footer ? '<div class="sheet-foot">' + footer + '</div>' : ''}</form>`;
+  const form = dialog.querySelector('form');
+  form.addEventListener('submit',event => {
+    event.preventDefault();
+    if (!savePending) onSubmit?.(form);
+  });
+  if (!dialog.open) dialog.showModal();
+  if (focus) form.querySelector(focus)?.focus({preventScroll:true});
+  else form.querySelector('#sheet-title')?.focus({preventScroll:true});
+  return form;
+}
+function fail(message) {
+  const element = dialog.open ? dialog.querySelector('.error') : null;
+  if (!element) {announce(message);return;}
+  element.hidden = false;
+  element.textContent = message;
+  element.scrollIntoView({block:'nearest'});
+}
+async function save(update,message,after) {
+  if (savePending) return;
+  savePending = true;
+  const button = dialog.querySelector('button[type="submit"]');
+  if (button) button.disabled = true;
+  try {
+    await Storage.change(update);
+    if (after) after();
+    render();
+    closeSheet();
+    announce(message);
+    if (navigator.userActivation?.isActive) navigator.vibrate?.(12);
+  } catch (error) {
+    fail(error instanceof DOMException ? 'El navegador no pudo guardar los datos en este dispositivo.' : error.message);
+  } finally {
+    savePending = false;
+    if (button) button.disabled = false;
+  }
+}
+function editPerson(person) {
+  const state = Storage.state;
+  let color = person?.color ?? Budget.colors[state.people.length % Budget.colors.length];
+  const swatches = Budget.colors.map((option,index) => button(
+    '<span class="swatch" style="--avatar:' + option + '"></span>','color','control pill','',
+    `data-color="${option}" aria-label="${['Menta','Azul','Lavanda','Arena','Rosa','Oliva'][index]}" aria-pressed="${option === color}"`
+  )).join('');
+  const name = formField('Nombre','name','required maxlength="60" placeholder="Ej. María" value="' + escape(person?.name) + '"');
+  const budget = formField('Presupuesto total inicial · ' + state.currency,'budget',
+    'required maxlength="25" inputmode="decimal" autocomplete="off" placeholder="0,00" value="' + (person ? numberInput(person.budget) : '') + '"');
+  const form = sheet(person ? 'Editar persona' : 'Agregar persona',name + budget +
+    '<fieldset><legend>Color del avatar</legend><div class="pills">' + swatches + '</div></fieldset>',
+    submit('Guardar persona'),form => {
+      const name = value(form,'name');
+      const budget = Budget.parseCents(value(form,'budget'));
+      if (!name) {fail('Escribe el nombre de la persona.');return;}
+      if (budget === null) {fail('Ingresa un presupuesto válido con hasta dos decimales.');return;}
+      const profile = {id:person?.id ?? id(),name,color,budget};
+      save(next => {
+        if (next.currency !== state.currency) throw new Error('La moneda cambió. Vuelve a abrir el formulario.');
+        const index = next.people.findIndex(item => item.id === profile.id);
+        if (person && index < 0) throw new Error('El perfil ya no está disponible.');
+        if (index < 0) next.people.push(profile);
+        else next.people[index] = profile;
+      },person ? 'Perfil actualizado' : 'Persona agregada');
+    },'[name="name"]');
+  form.addEventListener('click',event => {
+    const chosen = event.target.closest('[data-color]');
+    if (!chosen) return;
+    color = chosen.dataset.color;
+    for (const swatch of form.querySelectorAll('[data-color]')) swatch.setAttribute('aria-pressed',String(swatch === chosen));
+  });
+}
+function editExpense(expense) {
+  const state = Storage.state;
+  if (!state.people.length) {editPerson();return;}
+  let personId = expense?.personId ?? activePerson ?? state.lastBuyer ?? state.people[0].id;
+  const pills = state.people.map(person => button(avatar(person) + escape(person.name),'buyer','control pill','',
+    `data-person="${person.id}" aria-pressed="${person.id === personId}"`)).join('');
+  const currency = currencies.get(state.currency).formatToParts(0).find(part => part.type === 'currency').value;
+  const suggestions = [...new Set(state.expenses.slice().reverse().map(item => item.place))].slice(0,40);
+  const fields = `<fieldset><legend>Quién compró</legend><div class="pills">${pills}</div></fieldset>
+    <label class="field">Monto · ${state.currency}
+    <span class="amount-entry"><span aria-hidden="true">${escape(currency)}</span>
+    <input name="amount" inputmode="decimal" autocomplete="off" enterkeyhint="next" required maxlength="25" placeholder="0,00" value="${expense ? numberInput(expense.amount) : ''}"></span></label>
+    ${formField('Artículo o concepto','title','required maxlength="100" enterkeyhint="next" placeholder="Ej. Cena" value="' + escape(expense?.title) + '"')}
+    <div class="fields">${formField('Lugar o comercio','place','required maxlength="100" autocomplete="off" enterkeyhint="next" list="known-places" placeholder="Ej. Automercado" value="' + escape(expense?.place) + '"')}
+    ${formField('Fecha','date','type="date" required value="' + (expense?.date ?? Budget.today()) + '"')}</div>
+    <datalist id="known-places">${suggestions.map(place => '<option value="' + escape(place) + '"></option>').join('')}</datalist>`;
+  const form = sheet(expense ? 'Editar gasto' : 'Nuevo gasto',fields,submit('Guardar gasto'),form => {
+    const amount = Budget.parseCents(value(form,'amount'));
+    const title = value(form,'title');
+    const place = value(form,'place');
+    const date = value(form,'date');
+    if (amount === null || amount === 0) {fail('Ingresa un monto mayor que cero con hasta dos decimales.');return;}
+    if (!title || !place) {fail('Completa el concepto y el lugar de la compra.');return;}
+    if (!Budget.dateOnly(date)) {fail('Elige una fecha válida.');return;}
+    const entry = {id:expense?.id ?? id(),personId,title,place,amount,date};
+    save(next => {
+      if (next.currency !== state.currency || next.cycle !== state.cycle) throw new Error('El ciclo cambió. Vuelve a abrir el formulario.');
+      if (!next.people.some(person => person.id === personId)) throw new Error('El perfil ya no está disponible.');
+      const index = next.expenses.findIndex(item => item.id === entry.id);
+      if (expense && index < 0) throw new Error('El gasto ya no está disponible.');
+      if (index === -1) {next.expenses.push(entry);next.lastBuyer = personId;}
+      else next.expenses[index] = entry;
+    },expense ? 'Gasto actualizado' : 'Gasto registrado');
+  });
+  form.addEventListener('click',event => {
+    const chosen = event.target.closest('[data-person]');
+    if (!chosen) return;
+    personId = chosen.dataset.person;
+    for (const pill of form.querySelectorAll('[data-person]')) pill.setAttribute('aria-pressed',String(pill === chosen));
+  });
+}
+function removeExpense(expense) {
+  sheet('Eliminar gasto',`<p class="soft-text">Se eliminará <strong>${escape(expense.title)}</strong> por ${money(expense.amount)} y se recalculará el saldo de la persona.</p>`,
+    button('Cancelar','close') + submit('Eliminar gasto','control danger'),() => {
+      save(next => {
+        const index = next.expenses.findIndex(item => item.id === expense.id);
+        if (index < 0) throw new Error('El gasto ya fue eliminado.');
+        next.expenses.splice(index,1);
+      },'Gasto eliminado');
+    });
+}
+function settings() {
+  const state = Storage.state;
+  const options = Budget.currencies.map(code =>
+    `<option value="${code}" ${code === state.currency ? 'selected' : ''}>${code}</option>`).join('');
+  const currency = state.people.length ? '<p class="soft-text">Moneda del grupo · ' + state.currency + '</p>' :
+    '<label class="field">Moneda del grupo<select name="currency">' + options + '</select></label>';
+  sheet('Respaldos y ciclo',`
+    <div class="backup-options">
+      ${button('Exportar respaldo JSON','export','control','download')}
+      ${button('Restaurar respaldo JSON','import','control','upload')}
+      ${button('Iniciar nuevo ciclo','reset','control','reset')}
+    </div>${currency}`,state.people.length ? '' : submit('Guardar moneda'),form => {
+      const code = value(form,'currency');
+      if (!Budget.currencies.includes(code)) return;
+      save(next => {
+        if (next.people.length) throw new Error('Ya hay presupuestos en la moneda actual.');
+        next.currency = code;
+      },'Moneda actualizada');
+    });
+}
+function exportData() {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(Storage.state,null,2)],{type:'application/json'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'GastoClaro_respaldo_' + Budget.today() + '.json';
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url),5000);
+}
+function resetCycle() {
+  const state = Storage.state;
+  sheet('Iniciar nuevo ciclo',
+    '<p class="soft-text">Se borrarán los gastos de este ciclo. Las personas y sus presupuestos iniciales se conservarán.</p>' +
+    button('Exportar respaldo antes de continuar','export','control','download'),
+    button('Cancelar','settings') + submit('Iniciar ciclo','control danger'),() => {
+      save(next => {
+        if (next.currency !== state.currency || next.cycle !== state.cycle || JSON.stringify(next.expenses) !== JSON.stringify(state.expenses)) {
+          throw new Error('Los gastos cambiaron en otra pestaña. Revisa el historial antes de reiniciar.');
+        }
+        next.cycle = Budget.today();
+        next.expenses = [];
+        next.lastBuyer = null;
+      },'Nuevo ciclo iniciado',() => {activePerson = null;});
+    });
+}
+inputFile.addEventListener('change',async () => {
+  const [file] = inputFile.files;
+  inputFile.value = '';
+  if (!file) return;
+  try {
+    if (file.size > 4 * 1024 * 1024) throw new Error('El respaldo supera el tamaño máximo admitido de 4 MB.');
+    const loaded = Budget.validate(JSON.parse(await file.text()));
+    const count = loaded.people.length;
+    const expenses = loaded.expenses.length;
+    sheet('Restaurar respaldo',
+      `<p class="soft-text">El respaldo contiene ${count} ${count === 1 ? 'persona' : 'personas'} y ${expenses} ${expenses === 1 ? 'gasto' : 'gastos'}. Al restaurarlo se reemplazarán los datos actuales.</p>` +
+      button('Exportar datos actuales','export','control','download'),
+      button('Cancelar','settings') + submit('Restaurar'),() => {
+        save(next => {Object.assign(next,loaded);},'Respaldo restaurado',() => {activePerson = null;});
+      });
+  } catch (error) {
+    fail(error instanceof SyntaxError ? 'El archivo no tiene un formato JSON válido.' : error.message);
+  }
+});
+function returnFocus(target) {
+  if (!target) return;
+  const {action, id} = target.dataset;
+  const replacement = [...document.querySelectorAll('[data-action]')]
+    .find(element => element.dataset.action === action && element.dataset.id === id);
+  (target.isConnected ? target : replacement ?? $('#activity-title'))?.focus({preventScroll:true});
+}
+dialog.addEventListener('close',() => {
+  dialog.classList.remove('leaving');
+  if (!dialog.open) returnFocus(restoreFocusTo);
+});
+dialog.addEventListener('cancel',event => {event.preventDefault();if (!savePending) closeSheet();});
+const viewport = window.visualViewport;
+let revealFrame;
+function positionSheet() {
+  if (!viewport || viewport.scale !== 1) {
+    dialog.style.removeProperty('--keyboard-gap');
+    dialog.style.removeProperty('--viewport-height');
+    dialog.removeAttribute('data-keyboard');
+    return;
+  }
+  const hiddenHeight = Math.max(0,document.documentElement.clientHeight - viewport.height);
+  const bottom = Math.max(0,hiddenHeight - viewport.offsetTop);
+  dialog.style.setProperty('--keyboard-gap',bottom + 'px');
+  dialog.style.setProperty('--viewport-height',viewport.height + 'px');
+  dialog.toggleAttribute('data-keyboard',hiddenHeight > 100 && dialog.contains(document.activeElement));
+}
+function revealSheetField() {
+  cancelAnimationFrame(revealFrame);
+  revealFrame = requestAnimationFrame(() => {
+    if (!dialog.open) return;
+    const field = document.activeElement?.closest('input,select,textarea');
+    const scroller = field?.closest('.sheet-body');
+    if (!scroller || !dialog.contains(scroller)) return;
+    const target = (field.closest('.field') ?? field).getBoundingClientRect();
+    const bounds = scroller.getBoundingClientRect();
+    if (target.bottom > bounds.bottom - 8) scroller.scrollTop += target.bottom - bounds.bottom + 8;
+    else if (target.top < bounds.top + 8) scroller.scrollTop -= bounds.top - target.top + 8;
+  });
+}
+function fitSheet() {
+  positionSheet();
+  revealSheetField();
+}
+dialog.addEventListener('focusin',fitSheet);
+viewport?.addEventListener('resize',fitSheet);
+viewport?.addEventListener('scroll',positionSheet);
+positionSheet();
+document.addEventListener('click',event => {
+  const target = event.target.closest('button[data-action]');
+  if (!target || savePending || dialog.classList.contains('leaving')) return;
+  const {action,id} = target.dataset;
+  const state = Storage.state;
+  switch (action) {
+    case 'settings': settings();break;
+    case 'close': closeSheet();break;
+    case 'new-person': editPerson();break;
+    case 'edit-person': {
+      const person = state.people.find(person => person.id === id);
+      if (person) editPerson(person);
+      break;
+    }
+    case 'filter':
+      activePerson = id || null;
+      render();
+      returnFocus(target);
+      announce(activePerson ? 'Historial de ' + state.people.find(person => person.id === id).name : 'Historial de todos');
+      break;
+    case 'new-expense': editExpense();break;
+    case 'edit-expense':
+    case 'delete-expense': {
+      const expense = state.expenses.find(item => item.id === id);
+      if (expense && action === 'edit-expense') editExpense(expense);
+      if (expense && action === 'delete-expense') removeExpense(expense);
+      break;
+    }
+    case 'export': exportData();break;
+    case 'import': inputFile.click();break;
+    case 'reset': resetCycle();break;
+  }
+});
+addEventListener('storage',event => {
+  if (event.key !== Budget.key && event.key !== null) return;
+  try {Storage.refresh();render();}
+  catch {announce('No se pudo actualizar el almacenamiento local.');}
+});
+for (const element of document.querySelectorAll('[data-icon]')) element.innerHTML = icon(element.dataset.icon);
+$('#brand-icon').innerHTML = icon('brand');
+render();
+if (Storage.startupError) announce('No se pudo leer el almacenamiento local de este navegador.');
+
+function setupManifest() {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#145b50" rx="36"/><path d="M43 128h106M56 112l29-29 21 14 33-40m-20 0h20v20" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+  const svgURL = 'data:image/svg+xml,' + encodeURIComponent(svg);
+  function link(rel,url) {
+    const element = document.createElement('link');
+    element.rel = rel;
+    element.href = url;
+    document.head.append(element);
+  }
+  link('icon',svgURL);
+  if (!['http:','https:'].includes(location.protocol)) return;
+  const url = new URL(location.href);
+  url.search = url.hash = '';
+  const manifest = {id:url.href,start_url:url.href,scope:new URL('.',url).href,name:'Gasto Claro',
+    short_name:'Gasto Claro',lang:'es-CR',display:'standalone',theme_color:'#F4F7FA',
+    background_color:'#F4F7FA',icons:[{src:svgURL,sizes:'any',type:'image/svg+xml',purpose:'any'}]};
+  link('manifest','data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest)));
+}
+setupManifest();
+</script>
+</body>
+</html>

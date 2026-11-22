@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="es-CR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f6fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gasto Claro">
+<meta name="color-scheme" content="light dark">
+<title>Gasto Claro · Presupuestos del grupo</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f5f6fa;--surface:#fff;--soft:#edf0f8;--text:#161c31;--muted:#545e75;
+  --line:#e0e4ee;--accent:#314cca;--on-accent:#fff;--accent-soft:#e8edff;
+  --warn:#815107;--warn-bg:#fff2d7;--danger:#a52140;--danger-bg:#ffe8ef;
+  --shadow:0 14px 40px #202e6610;--hero:#222f83;--hero-edge:#3550d5;
+  --spring:cubic-bezier(.22,1.22,.38,1);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+:root[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#111423;--surface:#1a2033;--soft:#242c42;--text:#f5f6ff;--muted:#b8c2da;
+  --line:#333c55;--accent:#aebcff;--on-accent:#171f4f;--accent-soft:#293359;
+  --warn:#ffd58a;--warn-bg:#49351e;--danger:#ffafc1;--danger-bg:#4b2538;
+  --shadow:0 14px 40px #05061434;--hero:#232d71;--hero-edge:#4352b2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button,input,select,summary{min-block-size:44px}
+button:disabled{opacity:.6;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex="-1"]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+button{border:0}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{letter-spacing:-.035em;overflow-wrap:anywhere}
+p{line-height:1.55}
+[hidden]{display:none!important}
+svg{width:1.25em;height:1.25em;vertical-align:middle;flex:none}
+.num{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.shell{max-width:1100px;margin:auto;padding-inline:clamp(16px,4vw,48px)}
+header{padding-block:max(16px,env(safe-area-inset-top)) 16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px}
+.brand,.actions,.inline,.section-head,.person-head,.item-main,.row-controls{display:flex;align-items:center;gap:10px}
+.brand{font-weight:780;letter-spacing:-.045em;font-size:1.3rem}
+.logo,.icon-box{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;flex:none}
+.logo{color:#fff;background:#334cce;box-shadow:0 5px 13px #304bc744}
+.icon-box{color:var(--accent);background:var(--accent-soft)}
+.logo svg{width:24px;height:24px}
+.actions{flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.icon-btn,.quiet,.nav-btn,.chip,.btn{border-radius:13px;min-width:44px;padding:10px 14px;font-weight:670;color:var(--text);background:var(--surface);border:1px solid var(--line)}
+.icon-btn{padding:8px;display:grid;place-items:center}
+.primary{color:var(--on-accent);background:var(--accent);border-color:transparent}
+.subtle{color:var(--accent);background:var(--accent-soft);border-color:transparent}
+.danger{color:var(--danger);background:var(--danger-bg);border-color:transparent}
+button:is(.primary,.quiet,.icon-btn,.nav-btn,.chip,.person,.place,.expense):active{transform:scale(.98)}
+button{transition:transform .24s var(--spring),background-color .2s}
+main{padding-block:12px 56px}
+.hero{border-radius:30px;background:linear-gradient(115deg,var(--hero),var(--hero-edge));color:white;padding:clamp(23px,5vw,49px);position:relative;isolation:isolate;overflow:hidden;box-shadow:var(--shadow)}
+.hero::after,.hero::before{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid #c3cfff49;border-radius:50%;width:420px;height:420px;right:-95px;top:-170px}
+.hero::after{width:345px;height:345px;right:-60px;top:-135px;box-shadow:0 0 0 36px #d7e1ff12,0 0 0 73px #d7e1ff0a}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(205px,.65fr);align-items:end;gap:24px}
+.hero h1{font-size:clamp(1.8rem,5vw,3.2rem);line-height:1.1;margin:.28em 0 .5em}
+.hero-label{font-size:.88rem;color:#edf0ff}
+.hero-total{font-size:clamp(2rem,6vw,3.65rem);font-weight:770;letter-spacing:-.06em;line-height:1.08;margin-top:.1em}
+.hero-sub{background:#101d654a;padding:17px 19px;border-radius:19px;border:1px solid #d3dbff50;display:grid;gap:10px}
+.hero-stat{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hero .btn{background:#fff;color:#273b9e;border:0;margin-top:21px}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin:24px 0 27px}
+.nav-btn{background:transparent;border-color:transparent;color:var(--muted);display:flex;align-items:center;gap:8px}
+.nav-btn[aria-current=page]{background:var(--accent-soft);color:var(--accent)}
+.section-head{justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.section-head h2{font-size:clamp(1.4rem,4vw,1.85rem)}
+.people,.places{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.person,.place,.expense{background:var(--surface);border:1px solid var(--line);text-align:start;color:var(--text);border-radius:20px;padding:17px;width:100%;min-width:0}
+.person{display:grid;gap:12px;align-content:start}
+.person-head{min-width:0}
+.person-head strong{overflow-wrap:anywhere}
+.chevron{margin-inline-start:auto;color:var(--muted)}
+.avatar{inline-size:40px;block-size:40px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:.85rem;font-weight:790;background:var(--avatar);color:#161d35}
+.balance{font-size:clamp(1.5rem,5vw,2.05rem);font-weight:780;letter-spacing:-.055em;line-height:1.15}
+.over{color:var(--danger)}
+.track{height:7px;border-radius:10px;background:var(--soft);overflow:hidden}
+.track span{display:block;height:100%;width:var(--progress);border-radius:inherit;background:var(--accent);transition:width .42s var(--spring)}
+.track.warn span{background:var(--warn)}.track.danger span{background:var(--danger)}
+.person-meta,.place-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.84rem}
+.badge{border-radius:20px;padding:4px 8px;font-size:.78rem;font-weight:730}
+.badge.warn{color:var(--warn);background:var(--warn-bg)}
+.badge.danger{color:var(--danger);background:var(--danger-bg)}
+.block{margin-top:28px}
+.list{display:grid;gap:8px}
+.expense{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);align-items:center;gap:10px;padding:12px 15px}
+.expense strong,.place strong{overflow-wrap:anywhere}
+.item-main>div{min-width:0}
+.item-amount{text-align:end;max-width:15rem}
+.item-caption{color:var(--muted);font-size:.84rem;line-height:1.45;overflow-wrap:anywhere}
+.place{display:grid;gap:13px}
+.empty{border:1px dashed var(--line);border-radius:20px;background:var(--surface);padding:24px;display:grid;gap:9px;justify-items:start}
+.empty p{max-width:45ch}
+.setup{min-height:min(70vh,640px);display:grid;align-items:center}
+.setup .hero-grid{align-items:center}
+.setup p{max-width:36ch}
+.setup-art{display:grid;gap:13px;align-content:center}
+.art-card{background:#ffffff19;border:1px solid #ffffff65;border-radius:22px;padding:17px;display:grid;gap:13px;transform:rotate(-4deg)}
+.art-card:nth-child(2){margin-inline-start:25px;transform:rotate(4deg)}
+.art-line{height:8px;background:#e2e8ff7d;border-radius:10px;display:block}
+.art-circle{width:38px;height:38px;background:#c5cdff;border-radius:50%;display:block}
+.detail-top{display:grid;gap:14px}
+.detail-top h2{font-size:clamp(1.6rem,5vw,2.3rem)}
+.detail-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));gap:8px}
+.detail-stat{border-radius:16px;background:var(--surface);border:1px solid var(--line);padding:13px}
+.detail-stat strong{display:block;font-size:clamp(1.03rem,4vw,1.44rem)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));gap:9px;margin-bottom:15px}
+label,.field-label{font-size:.875rem;font-weight:690}
+.field{display:grid;gap:6px;min-width:0}
+input,select{width:100%;min-width:0;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+input::placeholder{color:var(--muted);opacity:1}
+input[type=color]{padding:6px}
+dialog{width:min(100%,555px);max-height:min(92dvh,800px);max-width:100%;margin:auto auto 0;padding:0;border:1px solid var(--line);border-radius:25px 25px 0 0;background:var(--surface);color:var(--text);overscroll-behavior:contain;box-shadow:var(--shadow)}
+dialog[open]{animation:sheet .3s var(--spring)}
+@keyframes sheet{from{transform:translateY(22px);opacity:.6}to{transform:translateY(0);opacity:1}}
+dialog::backdrop{background:#0a102999;backdrop-filter:blur(3px)}
+.sheet-head,.sheet-body,.sheet-footer{padding:15px clamp(15px,4vw,25px)}
+.sheet-head,.sheet-footer{position:sticky;background:var(--surface);z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sheet-head{top:0;border-bottom:1px solid var(--line)}
+.sheet-body{display:grid;gap:14px}
+.sheet-footer{bottom:0;border-top:1px solid var(--line);padding-bottom:max(15px,env(safe-area-inset-bottom));flex-wrap:wrap}
+.sheet-footer .primary{flex:1}
+.sheet-head h2{font-size:1.35rem}
+.field-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.amount-box{position:relative}
+.amount-box{display:flex;align-items:center;gap:5px;background:var(--soft);border-radius:12px;padding-inline-start:11px}
+.amount-box span{font-weight:760;color:var(--accent)}
+.amount-box input{font-size:1.7rem;font-weight:760;background:var(--soft);min-height:59px;border-color:transparent}
+fieldset{margin:0;padding:0;border:0;min-inline-size:0}
+legend{padding:0;margin:0 0 7px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;overflow-wrap:anywhere;text-align:start}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--avatar);border:1px solid #53617e;flex:none}
+summary{display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--accent);font-weight:680}
+summary::before{content:"+"}
+details[open] summary::before{content:"−"}
+.extra-fields,.setup-people{display:grid;gap:9px}
+.setup-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr) auto;gap:6px;align-items:end}
+.error{color:var(--danger);font-weight:670;font-size:.875rem}
+.session-list{display:grid;gap:8px}
+.session-list .quiet{text-align:start}
+.toast{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);background:var(--text);color:var(--surface);padding:7px 9px 7px 14px;border-radius:15px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+.toast button{border-radius:10px;padding-inline:12px;background:var(--surface);color:var(--text);font-weight:710}
+@media(max-width:620px){
+  .hero-grid{grid-template-columns:minmax(0,1fr);gap:18px}
+  .setup-art{grid-template-columns:1fr 1fr;gap:8px}.art-card:nth-child(2){margin-inline-start:0}
+  .hero-sub{padding:12px 14px}
+  .nav{gap:2px;margin:17px 0 20px}
+  .nav-btn{padding-inline:9px;font-size:.9rem}
+}
+@media(max-width:365px){.item-main .icon-box{display:none}.brand{font-size:1.12rem}.field-pair{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="shell"><div class="top">
+  <div class="brand"><span class="logo" id="brand-icon" aria-hidden="true"></span>Gasto Claro</div>
+  <div class="actions" id="header-actions"></div>
+</div></header>
+<main id="app" class="shell"></main>
+<dialog id="sheet" aria-labelledby="sheet-title"></dialog>
+<div id="toast" class="toast" hidden></div>
+<div id="announce" class="sr" role="status" aria-live="polite" aria-atomic="true"></div>
+<script id="domain">
+'use strict';
+/**
+ * @typedef {{id:string,name:string,color:string,budget:number}} Person
+ * @typedef {{id:string,description:string,amount:number,place:string,buyers:string[],at:string}} Expense
+ * @typedef {{id:string,name:string,date:string,currency:string,people:Person[],expenses:Expense[],lastDeleted?:Expense}} Session
+ * @typedef {{version:1,activeId:string|null,theme:'light'|'dark'|null,sessions:Session[]}} AppData
+ */
+const Domain = (() => {
+  /** @param {string} value @param {number} digits @returns {number | null} */
+  function parseMinor(value, digits) {
+    const input = value.trim();
+    const pattern = digits === 0 ? /^\d+$/ : new RegExp('^\\d+(?:[.,]\\d{1,' + digits + '})?$');
+    if (!pattern.test(input)) return null;
+    const [whole, fraction = ''] = input.split(/[.,]/);
+    const minor = BigInt(whole + fraction.padEnd(digits, '0'));
+    return minor <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(minor) : null;
+  }
+
+  /** @param {number} amount @param {string[]} buyers @returns {Map<string,bigint>} */
+  function split(amount, buyers) {
+    const ids = [...new Set(buyers)].sort();
+    if (!ids.length) return new Map();
+    const total = BigInt(amount);
+    const count = BigInt(ids.length);
+    const basic = total / count;
+    // Assign leftover minor units in stable buyer order.
+    const remainder = total % count;
+    return new Map(ids.map((id, index) => [id, basic + (BigInt(index) < remainder ? 1n : 0n)]));
+  }
+
+  /** @param {number} budget @param {bigint} spent */
+  function budgetStatus(budget, spent) {
+    const limit = BigInt(budget);
+    const remaining = limit - spent;
+    if (limit === 0n && spent === 0n) return {remaining, percent: null, progress: 0, warning: ''};
+    const percent = limit === 0n ? null : spent * 100n / limit;
+    const warning = spent >= limit ? 'danger' : spent * 5n >= limit * 4n ? 'warn' : '';
+    const progress = warning === 'danger' ? 100 : Number(spent * 10000n / limit) / 100;
+    return {remaining, percent, progress, warning};
+  }
+
+  /** @param {Pick<Session, "people" | "expenses">} session */
+  function totals(session) {
+    const people = new Map(session.people.map(person => [person.id, 0n]));
+    let spent = 0n;
+    let budget = 0n;
+    for (const person of session.people) budget += BigInt(person.budget);
+    for (const expense of session.expenses) {
+      spent += BigInt(expense.amount);
+      for (const [id, share] of split(expense.amount, expense.buyers)) {
+        if (people.has(id)) people.set(id, people.get(id) + share);
+      }
+    }
+    return {spent, budget, people};
+  }
+
+  function placeKey(value) {
+    return value.trim().replace(/\s+/g, ' ').toLocaleLowerCase('es-CR');
+  }
+
+  function currencyDigits(code) {
+    return new Intl.NumberFormat('es-CR', {style:'currency', currency:code}).resolvedOptions().maximumFractionDigits;
+  }
+
+  function decimalText(amount, digits) {
+    const source = String(amount).padStart(digits + 1, '0');
+    return digits ? source.slice(0, -digits) + ',' + source.slice(-digits) : source;
+  }
+
+  return {parseMinor, split, budgetStatus, totals, placeKey, currencyDigits, decimalText};
+})();
+</script>
+<script id="state">
+'use strict';
+const Store = (() => {
+  const key = 'gasto-claro.v1';
+  /** @type {AppData} */
+  const empty = {version:1,activeId:null,theme:null,sessions:[]};
+  let initialError = false;
+  function read() {
+    const source = localStorage.getItem(key);
+    if (!source) return structuredClone(empty);
+    const parsed = JSON.parse(source);
+    if (parsed.version !== 1 || !Array.isArray(parsed.sessions)) throw new Error('Datos incompatibles');
+    return parsed;
+  }
+  let data;
+  try { data = read(); } catch { data = structuredClone(empty); initialError = true; }
+
+  /** @param {(next: AppData) => void} change */
+  async function update(change) {
+    function commit() {
+      const next = read();
+      change(next);
+      localStorage.setItem(key, JSON.stringify(next));
+      data = next;
+    }
+    if (location.protocol !== 'file:' && navigator.locks) {
+      await navigator.locks.request(key, commit);
+    } else {
+      commit();
+    }
+  }
+
+  function active() {
+    return data.sessions.find(session => session.id === data.activeId) ?? data.sessions[0];
+  }
+  /** @param {AppData} snapshot @param {string} id */
+  function sessionById(snapshot, id) {
+    const session = snapshot.sessions.find(entry => entry.id === id);
+    if (!session) throw new Error('La sesión ya no está disponible.');
+    return session;
+  }
+
+  function refresh() { data = read(); }
+  return {key, initialError, update, active, sessionById, refresh, get data() { return data; }};
+})();
+</script>
+<script id="ui">
+'use strict';
+const icons = {
+  logo:'<rect x="3" y="5" width="18" height="14" rx="4"/><path d="M3 10h18M7 15h4m5 0h1"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/>',
+  moon:'<path d="M20.5 15.2A8.6 8.6 0 0 1 8.8 3.5 8.6 8.6 0 1 0 20.5 15.2Z"/>',
+  layers:'<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5m-18 4 9 5 9-5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  pin:'<path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  receipt:'<path d="M5 3h14v18l-3.5-2-3.5 2-3.5-2L5 21V3Zm4 5h6m-6 4h6"/>',
+  next:'<path d="m9 6 6 6-6 6"/>',
+  back:'<path d="m15 6-6 6 6 6"/>',
+  close:'<path d="m6 6 12 12M18 6 6 18"/>',
+  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m1 3a5 5 0 0 1 3 4v2"/>'
+};
+const icon = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icons[name] + '</svg>';
+const $ = selector => document.querySelector(selector);
+const app = $('#app');
+const sheet = $('#sheet');
+const palette = ['#a7d8ff','#b4eacc','#ffcca6','#d6c1ff','#ffbcd3','#f5e188','#a9e4e6'];
+const currencyCodes = ['CRC','USD','EUR','CAD','GBP','MXN','BRL','COP','PEN','JPY','CHF','ARS','CLP','GTQ','PAB'];
+const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+const formatDate = new Intl.DateTimeFormat('es-CR', {dateStyle:'medium'});
+const formatTime = new Intl.DateTimeFormat('es-CR', {timeStyle:'short'});
+const formatCount = new Intl.NumberFormat('es-CR');
+const currencyFormats = new Map();
+let route = {view:'home'};
+let sheetOpener;
+let busy = false;
+let liveTimer;
+let filterState = emptyFilters();
+
+function emptyFilters() { return {query:'',from:'',to:'',group:''}; }
+function escape(value) {
+  const characters = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+  return String(value ?? '').replace(/[&<>"']/g, char => characters[char]);
+}
+function id() {
+  return globalThis.crypto?.randomUUID?.() ?? Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+}
+function today() { return localTime(new Date()).slice(0, 10); }
+function localTime(date) {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+function calendar(date) { return formatDate.format(new Date(date + 'T12:00:00')); }
+function money(amount, currency) {
+  if (!currencyFormats.has(currency)) {
+    currencyFormats.set(currency, new Intl.NumberFormat('es-CR',{style:'currency',currency}));
+  }
+  const formatter = currencyFormats.get(currency);
+  const digits = formatter.resolvedOptions().maximumFractionDigits;
+  const value = BigInt(amount);
+  const absolute = value < 0n ? -value : value;
+  const divisor = 10n ** BigInt(digits);
+  const fraction = String(absolute % divisor).padStart(digits,'0');
+  const whole = absolute / divisor;
+  const signed = value < 0n ? (whole === 0n ? -0 : -whole) : whole;
+  return formatter.formatToParts(signed).map(part => part.type === 'fraction' ? fraction : part.value).join('');
+}
+function initials(name) {
+  return name.split(/\s+/).slice(0,2).map(word => [...word][0]).join('').toLocaleUpperCase('es-CR');
+}
+function avatar(person) {
+  return '<span class="avatar" aria-hidden="true" style="--avatar:' + person.color + '">' + escape(initials(person.name)) + '</span>';
+}
+function action(label, name, type = 'quiet', symbol = '', attrs = '') {
+  return '<button type="button" class="' + type + '" data-action="' + name + '" ' + attrs + '>' + (symbol ? icon(symbol) + ' ' : '') + label + '</button>';
+}
+function iconButton(label, name, symbol) {
+  return action('',name,'icon-btn',symbol,'aria-label="' + label + '" title="' + label + '"');
+}
+function navItem(label, view, symbol) {
+  const selected = route.view === view || (view === 'home' && route.view === 'person') || (view === 'places' && route.view === 'place');
+  return action(label,'navigate','nav-btn',symbol,'data-view="' + view + '"' + (selected ? ' aria-current="page"' : ''));
+}
+function announce(message) {
+  clearTimeout(liveTimer);
+  $('#announce').textContent = '';
+  liveTimer = setTimeout(() => { $('#announce').textContent = message; }, 25);
+}
+function haptic() { navigator.vibrate?.(12); }
+function empty(symbol,title,copy,button = '') {
+  return `<div class="empty"><span class="icon-box">${icon(symbol)}</span><h3>${title}</h3><p class="muted">${copy}</p>${button}</div>`;
+}
+function drawTheme() {
+  const previous = document.activeElement?.dataset.action;
+  const mode = Store.data.theme ?? (systemTheme.matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = mode;
+  $('meta[name="theme-color"]').content = mode === 'dark' ? '#111423' : '#f5f6fa';
+  $('#header-actions').innerHTML =
+    (Store.active() ? iconButton('Sesiones','sessions','layers') : '') +
+    iconButton(mode === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro','theme',mode === 'dark' ? 'sun' : 'moon');
+  if (previous === 'sessions' || previous === 'theme') $('#header-actions [data-action=' + previous + ']')?.focus({preventScroll:true});
+}
+function draw() {
+  drawTheme();
+  const session = Store.active();
+  if (!session) {
+    app.innerHTML = `<section class="hero setup"><div class="hero-grid"><div>
+      <h1>Presupuestos del grupo</h1>
+      <p>Registra compras individuales o compartidas y consulta cuánto le queda a cada persona.</p>
+      ${action('Crear sesión','new-session','btn','plus')}
+    </div><div class="setup-art" aria-hidden="true">
+      <div class="art-card"><div class="inline"><span class="art-circle"></span><span class="art-line" style="width:49%"></span></div><span class="art-line" style="width:76%"></span></div>
+      <div class="art-card"><div class="inline"><span class="art-circle" style="background:#b4eacc"></span><span class="art-line" style="width:56%"></span></div><span class="art-line" style="width:63%"></span></div>
+    </div></div></section>`;
+    drawUndo();
+    return;
+  }
+  const summary = Domain.totals(session);
+  app.innerHTML = `<section class="hero" aria-labelledby="session-title"><div class="hero-grid"><div>
+    <p class="hero-label">${calendar(session.date)} · ${session.currency}</p>
+    <h1 id="session-title" tabindex="-1">${escape(session.name)}</h1>
+    <p class="hero-label">Gasto del grupo</p>
+    <p class="hero-total num">${money(summary.spent,session.currency)}</p>
+    ${action('Gasto','add-expense','btn','plus','aria-label="Agregar gasto"')}
+    </div><div class="hero-sub">
+      <div class="hero-stat"><span>Presupuesto</span><strong class="num">${money(summary.budget,session.currency)}</strong></div>
+      <div class="hero-stat"><span>Restante</span><strong class="num">${money(summary.budget-summary.spent,session.currency)}</strong></div>
+    </div></div></section>
+    <nav class="nav" aria-label="Vistas de la sesión">${navItem('Personas','home','grid')}${navItem('Lugares','places','pin')}${navItem('Actividad','activity','receipt')}</nav>
+    <section id="content" aria-labelledby="view-heading"></section>`;
+  drawContent(session, summary);
+  drawUndo();
+}
+function statusBadge(status) {
+  if (!status.warning) return '';
+  const text = status.remaining < 0n ? 'Excedido' : status.warning === 'danger' ? 'Al límite' : 'Cerca del límite';
+  return `<span class="badge ${status.warning}">${text}</span>`;
+}
+function personCard(person, spent, currency) {
+  const status = Domain.budgetStatus(person.budget,spent);
+  const percent = status.percent === null ? 'Sin presupuesto' : formatCount.format(status.percent) + ' % usado';
+  return `<button class="person" data-action="person-detail" data-id="${person.id}">
+    <div class="person-head">${avatar(person)}<strong>${escape(person.name)}</strong><span class="chevron">${icon('next')}</span></div>
+    <div><span class="muted small">Restante</span><div class="balance num ${status.remaining < 0n ? 'over' : ''}">${money(status.remaining,currency)}</div></div>
+    <div class="track ${status.warning}" aria-hidden="true"><span style="--progress:${status.progress}%"></span></div>
+    <div class="person-meta"><span class="num">${percent}</span>${statusBadge(status)}</div>
+  </button>`;
+}
+function placesOf(session) {
+  const groups = new Map();
+  for (const expense of sortedExpenses(session.expenses)) {
+    const key = Domain.placeKey(expense.place);
+    const entry = groups.get(key) ?? {key,name:expense.place || 'Sin lugar',spent:0n,count:0};
+    entry.spent += BigInt(expense.amount);
+    entry.count++;
+    groups.set(key,entry);
+  }
+  return [...groups.values()].sort((a,b) => a.name.localeCompare(b.name,'es-CR'));
+}
+function sortedExpenses(expenses) {
+  return [...expenses].reverse().sort((a,b) => b.at.localeCompare(a.at));
+}
+function drawContent(session, summary) {
+  const content = $('#content');
+  if (route.view === 'home') {
+    content.innerHTML = `<div class="section-head"><h2 id="view-heading" tabindex="-1">Presupuestos individuales</h2>
+      ${action('Agregar persona','add-person','quiet','plus')}</div>
+      <div class="people">${session.people.map(person => personCard(person,summary.people.get(person.id),session.currency)).join('')}</div>
+      <section class="block" aria-labelledby="recent-title"><div class="section-head"><h2 id="recent-title">Gastos recientes</h2>
+      ${session.expenses.length > 3 ? action('Ver todos','navigate','quiet','','data-view="activity"') : ''}</div>
+      ${expenseList(session,sortedExpenses(session.expenses).slice(0,3))}</section>`;
+    return;
+  }
+  if (route.view === 'places') {
+    const groups = placesOf(session);
+    content.innerHTML = `<div class="section-head"><h2 id="view-heading" tabindex="-1">Gastos por lugar</h2></div>` +
+      (groups.length ? '<div class="places">' + groups.map(group =>
+        `<button class="place" data-action="place-detail" data-id="${escape(group.key)}"><div class="person-head">
+        <span class="icon-box">${icon('pin')}</span><strong>${escape(group.name)}</strong><span class="chevron">${icon('next')}</span></div>
+        <div class="place-footer"><span>${group.count} ${group.count === 1 ? 'gasto' : 'gastos'}</span><strong class="num">${money(group.spent,session.currency)}</strong></div></button>`).join('') + '</div>' :
+        empty('pin','Todavía no hay gastos','Los lugares aparecerán cuando registres una compra.'));
+    return;
+  }
+  const person = route.view === 'person' ? session.people.find(p => p.id === route.id) : null;
+  const place = route.view === 'place' ? placesOf(session).find(entry => entry.key === route.id) : null;
+  if (route.view === 'person' && !person) { route = {view:'home'}; draw(); return; }
+  const status = person ? Domain.budgetStatus(person.budget,summary.people.get(person.id)) : null;
+  const title = person?.name ?? (route.view === 'place' ? place?.name ?? route.name : 'Todos los gastos');
+  const stat = (label,value,extra = '') => `<div class="detail-stat"><span class="muted small">${label}</span><strong class="num ${extra}">${money(value,session.currency)}</strong></div>`;
+  const overview = person ? stat('Presupuesto',person.budget) + stat('Gastado',summary.people.get(person.id)) +
+    stat('Restante',status.remaining,status.remaining < 0n ? 'over' : '') :
+    stat('Total',route.view === 'place' ? place?.spent ?? 0n : summary.spent);
+  const back = person ? 'home' : 'places';
+  content.innerHTML = `<div class="detail-top">
+    ${route.view === 'activity' ? '' : '<div>' + action(person ? 'Personas' : 'Lugares','navigate','quiet','back','data-view="' + back + '"') + '</div>'}
+    <div class="section-head"><div class="inline">${person ? avatar(person) : ''}<h2 id="view-heading" tabindex="-1">${escape(title)}</h2>${status ? statusBadge(status) : ''}</div>
+    ${person ? action('Editar persona','edit-person','quiet','','data-id="' + person.id + '"') : ''}</div>
+    <div class="detail-stats">${overview}</div></div>
+    <section class="block" aria-label="Movimientos">${filters(session,person)}
+    <p class="muted small" id="filtered-total" aria-live="polite"></p><div id="filtered-list" style="margin-top:8px"></div></section>`;
+  drawFiltered(session);
+}
+function filters(session, person) {
+  const grouping = person ? placesOf(session).map(place => ['p:' + place.key,place.name]) :
+    session.people.map(entry => [entry.id,entry.name]);
+  const option = ([value,label]) => `<option value="${escape(value)}" ${filterState.group === value ? 'selected' : ''}>${escape(label)}</option>`;
+  return `<div class="filters" role="group" aria-label="Filtrar gastos">
+    <label class="field">Buscar<input type="search" id="filter-query" value="${escape(filterState.query)}" placeholder="Descripción o lugar"></label>
+    <label class="field">Desde<input type="date" id="filter-from" value="${escape(filterState.from)}"></label>
+    <label class="field">Hasta<input type="date" id="filter-to" value="${escape(filterState.to)}"></label>
+    <label class="field">${person ? 'Lugar' : 'Persona'}<select id="filter-group"><option value="">${person ? 'Todos' : 'Todas'}</option>${grouping.map(option).join('')}</select></label>
+  </div>`;
+}
+function drawFiltered(session) {
+  const personId = route.view === 'person' ? route.id : null;
+  const placeId = route.view === 'place' ? route.id : null;
+  const {query,from,to,group} = filterState;
+  const normalized = Domain.placeKey(query);
+  const shown = sortedExpenses(session.expenses).filter(expense => {
+    const day = localTime(new Date(expense.at)).slice(0,10);
+    const key = Domain.placeKey(expense.place);
+    return (!personId || expense.buyers.includes(personId)) && (placeId === null || key === placeId)
+      && (!from || day >= from) && (!to || day <= to)
+      && (!group || (personId ? 'p:' + key === group : expense.buyers.includes(group)))
+      && (!normalized || Domain.placeKey(expense.description + ' ' + (expense.place || 'Sin lugar')).includes(normalized));
+  });
+  const shareId = personId || group || null;
+  const total = shown.reduce((sum,expense) => sum + expenseShare(expense,shareId),0n);
+  $('#filtered-total').textContent = shown.length + (shown.length === 1 ? ' gasto' : ' gastos') + ' · ' + money(total,session.currency) +
+    (shareId ? ' en participaciones' : '');
+  $('#filtered-list').innerHTML = expenseList(session,shown,shareId,true);
+}
+function expenseShare(expense, shareId) {
+  return shareId ? Domain.split(expense.amount,expense.buyers).get(shareId) ?? 0n : BigInt(expense.amount);
+}
+function expenseList(session, expenses, shareId = null, filtered = false) {
+  if (!expenses.length) return filtered ? empty('receipt','Sin gastos para mostrar','Prueba con otros filtros o agrega una compra.') :
+    empty('receipt','Todavía no hay gastos','El primer gasto aparecerá aquí.');
+  const names = new Map(session.people.map(person => [person.id,person.name]));
+  return '<div class="list">' + expenses.map(expense => {
+    const at = new Date(expense.at);
+    const label = expense.description || expense.place || 'Gasto';
+    const buyers = expense.buyers.map(buyer => names.get(buyer)).filter(Boolean).join(', ');
+    const place = expense.place && expense.place !== label ? expense.place + ' · ' : '';
+    return `<button class="expense" data-action="edit-expense" data-id="${expense.id}">
+      <div class="item-main"><span class="icon-box">${icon(expense.buyers.length > 1 ? 'users' : 'receipt')}</span>
+      <div><strong>${escape(label)}</strong><div class="item-caption">${escape(place + buyers)}</div>
+      <div class="item-caption">${formatDate.format(at)} · ${formatTime.format(at)}</div></div></div>
+      <strong class="num item-amount">${money(expenseShare(expense,shareId),session.currency)}</strong></button>`;
+  }).join('') + '</div>';
+}
+function navigate(view, id, name) {
+  route = {view,id,name};
+  filterState = emptyFilters();
+  draw();
+  $('#view-heading')?.focus({preventScroll:true});
+}
+function drawUndo() {
+  const undo = Store.active()?.lastDeleted;
+  const toast = $('#toast');
+  toast.hidden = !undo;
+  toast.innerHTML = undo ? '<span>Gasto eliminado</span>' + action('Deshacer','undo','') + iconButton('Cerrar aviso','dismiss-undo','close') : '';
+}
+function openSheet(title,body,footer,submit,focusSelector) {
+  if (!sheet.open) sheetOpener = document.activeElement;
+  sheet.innerHTML = `<form><div class="sheet-head"><h2 id="sheet-title">${title}</h2>${iconButton('Cerrar','close','close')}</div>
+    <div class="sheet-body">${body}<p class="error" role="alert" hidden></p></div>
+    ${footer ? '<div class="sheet-footer">' + footer + '</div>' : ''}</form>`;
+  if (!sheet.open) sheet.showModal();
+  const form = sheet.querySelector('form');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (submit) submit(form);
+  });
+  if (focusSelector) sheet.querySelector(focusSelector)?.focus();
+  else sheet.querySelector('button')?.focus();
+  return form;
+}
+function submitButton(label) { return '<button class="btn primary" type="submit">' + label + '</button>'; }
+function sheetError(message) {
+  const error = sheet.querySelector('.error');
+  if (!error) { announce(message); return; }
+  error.hidden = false;
+  error.textContent = message;
+  error.scrollIntoView({block:'nearest'});
+}
+function formValue(form,key) { return String(new FormData(form).get(key) ?? '').trim(); }
+function field(label,name,options = '') {
+  return `<label class="field">${label}<input name="${name}" ${options}></label>`;
+}
+function parseBudget(value,digits) {
+  const amount = Domain.parseMinor(value,digits);
+  if (amount === null) throw new Error(digits ? 'Usa un presupuesto válido, con hasta ' + digits + ' decimales.' : 'Usa un presupuesto entero válido.');
+  return amount;
+}
+async function commit(change,message = '',after) {
+  if (busy) return false;
+  busy = true;
+  const locked = [...sheet.querySelectorAll('button[type=submit]')];
+  locked.forEach(button => {button.disabled = true;});
+  try {
+    await Store.update(change);
+    if (sheet.open) sheet.close();
+    if (after) after();
+    draw();
+    if (message) { announce(message); haptic(); }
+    return true;
+  } catch (error) {
+    const message = error instanceof DOMException ? 'No se pudieron guardar los cambios en este navegador.' : error.message;
+    if (sheet.open) sheetError(message);
+    else {
+      announce(message);
+      const toast = $('#toast');
+      toast.hidden = false;
+      toast.innerHTML = '<span>' + escape(message) + '</span>' + iconButton('Cerrar aviso','hide-toast','close');
+    }
+    return false;
+  } finally {
+    busy = false;
+    locked.forEach(button => {button.disabled = false;});
+  }
+}
+function setupRow(index) {
+  return `<div class="setup-row">
+    ${field('Persona','person','required maxlength="70" autocomplete="off" placeholder="Nombre" aria-label="Nombre de persona ' + index + '"')}
+    ${field('Presupuesto','budget','required inputmode="decimal" maxlength="20" placeholder="0" aria-label="Presupuesto de persona ' + index + '"')}
+    ${iconButton('Quitar persona ' + index,'drop-setup-person','close')}
+  </div>`;
+}
+function activeRouteReset() { route = {view:'home'}; filterState = emptyFilters(); }
+function openNewSession() {
+  const options = currencyCodes.map(code => '<option value="' + code + '"></option>').join('');
+  let rowIndex = 1;
+  const form = openSheet('Nueva sesión',`
+    ${field('Nombre de la sesión','name','required maxlength="80" placeholder="Ej. Compras de diciembre"')}
+    <div class="field-pair">${field('Fecha','date','type="date" required value="' + today() + '"')}
+    ${field('Moneda','currency','required list="currencies" value="CRC" maxlength="3" pattern="[A-Za-z]{3}" autocomplete="off"')}
+    <datalist id="currencies">${options}</datalist></div>
+    <fieldset><legend class="field-label">Presupuestos individuales</legend><div class="setup-people">${setupRow(rowIndex)}</div></fieldset>
+    <div>${action('Otra persona','setup-person','quiet','plus')}</div>`,submitButton('Crear sesión'), form => {
+    try {
+      const name = formValue(form,'name');
+      if (!name) throw new Error('Escribe un nombre para la sesión.');
+      const currency = formValue(form,'currency').toUpperCase();
+      if (Intl.supportedValuesOf && !Intl.supportedValuesOf('currency').includes(currency)) throw new Error('Usa un código de moneda válido, como CRC o USD.');
+      const digits = Domain.currencyDigits(currency);
+      const people = [...form.querySelectorAll('.setup-row')].map((row,index) => {
+        const personName = row.querySelector('[name=person]').value.trim();
+        if (!personName) throw new Error('Completa el nombre de cada persona.');
+        return {id:id(),name:personName,color:palette[index % palette.length],budget:parseBudget(row.querySelector('[name=budget]').value,digits)};
+      });
+      const session = {id:id(),name,date:formValue(form,'date'),currency,people,expenses:[]};
+      commit(data => {data.sessions.push(session); data.activeId = session.id;},'Sesión creada',activeRouteReset);
+    } catch (error) { sheetError(error.message); }
+  },'[name=name]');
+  form.querySelector('.setup-row button').disabled = true;
+  form.addEventListener('click', event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const rows = form.querySelector('.setup-people');
+    if (button.dataset.action === 'setup-person') {
+      rows.insertAdjacentHTML('beforeend',setupRow(++rowIndex));
+      rows.lastElementChild.querySelector('input').focus();
+    }
+    if (button.dataset.action === 'drop-setup-person' && rows.children.length > 1) {
+      button.closest('.setup-row').remove();
+      rows.lastElementChild.querySelector('input').focus();
+    }
+    for (const control of rows.querySelectorAll('button')) control.disabled = rows.children.length < 2;
+  });
+}
+function openSessions() {
+  const active = Store.active().id;
+  const options = [...Store.data.sessions].reverse().map(session => `<button type="button" class="quiet" data-action="use-session" data-id="${session.id}" ${session.id === active ? 'aria-current="true"' : ''}>
+      <strong>${escape(session.name)}</strong><br><span class="small muted">${calendar(session.date)} · ${session.currency}${session.id === active ? ' · Activa' : ''}</span></button>`).join('');
+  openSheet('Sesiones','<div class="session-list">' + options + '</div>' +
+    action('Nueva sesión','new-session','btn primary','plus') +
+    action('Editar sesión activa','edit-session'),'');
+}
+function openEditSession(session) {
+  openSheet('Editar sesión',field('Nombre de la sesión','name','required maxlength="80" value="' + escape(session.name) + '"') +
+    field('Fecha','date','type="date" required value="' + session.date + '"') +
+    '<p class="muted small">Moneda de la sesión: ' + session.currency + '</p>',submitButton('Guardar'),form => {
+      const name = formValue(form,'name');
+      if (!name) {sheetError('Escribe un nombre para la sesión.'); return;}
+      const date = formValue(form,'date');
+      commit(data => {Object.assign(Store.sessionById(data,session.id),{name,date});},'Sesión actualizada');
+    },'[name=name]');
+}
+function openPerson(session,person) {
+  const digits = Domain.currencyDigits(session.currency);
+  openSheet(person ? 'Editar persona' : 'Agregar persona',`
+    ${field('Nombre','name','required maxlength="70" value="' + escape(person?.name) + '"')}
+    <div class="field-pair">${field('Presupuesto · ' + session.currency,'budget','required inputmode="decimal" maxlength="20" placeholder="0" value="' + (person ? Domain.decimalText(person.budget,digits) : '') + '"')}
+    ${field('Color del avatar','color','type="color" value="' + (person?.color ?? palette[session.people.length % palette.length]) + '"')}</div>`,
+    submitButton('Guardar'),form => {
+      try {
+        const name = formValue(form,'name');
+        if (!name) throw new Error('Escribe un nombre.');
+        const updated = {id:person?.id ?? id(),name,color:formValue(form,'color'),budget:parseBudget(formValue(form,'budget'),digits)};
+        commit(data => {
+          const {people} = Store.sessionById(data,session.id);
+          const index = people.findIndex(entry => entry.id === updated.id);
+          if (index === -1) people.push(updated);
+          else people[index] = updated;
+        },'Presupuesto guardado');
+      } catch (error) { sheetError(error.message); }
+    },'[name=name]');
+}
+function openExpense(session,expense) {
+  const digits = Domain.currencyDigits(session.currency);
+  const previous = session.expenses.at(-1);
+  const buyer = route.view === 'person' ? route.id : null;
+  const contextPlace = route.view === 'place' ? placesOf(session).find(place => place.key === route.id) : null;
+  const selected = new Set(expense?.buyers ?? (buyer ? [buyer] : previous?.buyers ?? [session.people[0].id]));
+  const places = placesOf(session).filter(place => place.key);
+  const selection = expense?.place ?? (route.view === 'place' ? (route.id ? contextPlace?.name ?? route.name : '') : previous?.place ?? '');
+  const formatExample = digits ? '0,' + '0'.repeat(digits) : '0';
+  const at = localTime(expense ? new Date(expense.at) : new Date());
+  let customDate = false;
+  const chips = session.people.map(person =>
+    action('<span class="dot" aria-hidden="true" style="--avatar:' + person.color + '"></span>' + escape(person.name),
+      'buyer','chip','','data-id="' + person.id + '" aria-pressed="' + selected.has(person.id) + '"')).join('');
+  const commonPlaces = places.filter(place => place.key !== Domain.placeKey(selection)).slice(0,3);
+  const form = openSheet(expense ? 'Editar gasto' : 'Nuevo gasto',`
+    <label class="field">Monto · ${session.currency}<span class="amount-box"><span aria-hidden="true">${escape(currencySymbol(session.currency))}</span>
+    <input name="amount" inputmode="${digits ? 'decimal' : 'numeric'}" autocomplete="off" required maxlength="20" placeholder="${formatExample}" value="${expense ? Domain.decimalText(expense.amount,digits) : ''}"></span></label>
+    <fieldset><legend class="field-label">Quién compró</legend><div class="chips">${chips}</div><p id="shares" class="muted small" aria-live="polite"></p></fieldset>
+    ${field('Lugar','place','maxlength="100" autocomplete="off" list="known-places" placeholder="Tienda o comercio" value="' + escape(selection) + '"')}
+    <datalist id="known-places">${places.map(place => '<option value="' + escape(place.name) + '"></option>').join('')}</datalist>
+    ${commonPlaces.length ? '<div class="chips" role="group" aria-label="Lugares sugeridos">' + commonPlaces.map(place =>
+      action(escape(place.name),'suggest-place','chip','','data-place="' + escape(place.name) + '"')).join('') + '</div>' : ''}
+    <details ${expense ? 'open' : ''}><summary>Descripción y fecha</summary><div class="extra-fields">
+    ${field('Descripción','description','maxlength="120" placeholder="¿Qué compraron?" value="' + escape(expense?.description) + '"')}
+    ${field('Fecha y hora','at','type="datetime-local" value="' + at + '"')}</div></details>`,
+    (expense ? action('Eliminar','delete-expense','btn danger','','data-id="' + expense.id + '"') : '') + submitButton('Guardar'),
+    form => {
+      try {
+        const amount = Domain.parseMinor(formValue(form,'amount'),digits);
+        if (amount === null || amount === 0) throw new Error(digits ? 'Ingresa un monto mayor que cero, con hasta ' + digits + ' decimales.' : 'Ingresa un monto entero mayor que cero.');
+        if (!selected.size) throw new Error('Selecciona al menos una persona.');
+        const dateValue = formValue(form,'at');
+        if (customDate && !dateValue) throw new Error('Completa la fecha y hora o vuelve a abrir el formulario para usar la fecha automática.');
+        const timestamp = customDate ? new Date(dateValue).toISOString() : expense?.at ?? new Date().toISOString();
+        const enteredPlace = formValue(form,'place').replace(/\s+/g,' ');
+        const place = places.find(option => option.key === Domain.placeKey(enteredPlace))?.name ?? enteredPlace;
+        const updated = {id:expense?.id ?? id(),description:formValue(form,'description'),amount,place,buyers:[...selected],at:timestamp};
+        commit(data => {
+          const current = Store.sessionById(data,session.id);
+          const index = current.expenses.findIndex(entry => entry.id === updated.id);
+          if (expense && index < 0) throw new Error('El gasto se eliminó en otra pestaña.');
+          if (index === -1) current.expenses.push(updated);
+          else current.expenses[index] = updated;
+        },expense ? 'Gasto actualizado' : 'Gasto guardado');
+      } catch (error) { sheetError(error.message); }
+    },'[name=amount]');
+  const amountInput = form.elements.namedItem('amount');
+  if (expense) amountInput.select();
+
+  function drawShares() {
+    const line = form.querySelector('#shares');
+    const amount = Domain.parseMinor(amountInput.value,digits);
+    if (selected.size < 2) {line.textContent = ''; return;}
+    if (!amount) {line.textContent = 'El monto se reparte entre ' + selected.size + ' personas.'; return;}
+    const shares = Domain.split(amount,[...selected]);
+    line.textContent = session.people.filter(person => selected.has(person.id))
+      .map(person => person.name + ' ' + money(shares.get(person.id),session.currency)).join(' · ');
+  }
+  drawShares();
+  amountInput.addEventListener('input',drawShares);
+  form.elements.namedItem('at').addEventListener('input',() => {customDate = true;});
+  form.addEventListener('click',event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    if (button.dataset.action === 'buyer') {
+      const buyerId = button.dataset.id;
+      if (selected.has(buyerId)) selected.delete(buyerId);
+      else selected.add(buyerId);
+      button.setAttribute('aria-pressed',String(selected.has(buyerId)));
+      drawShares();
+    }
+    if (button.dataset.action === 'suggest-place') form.elements.namedItem('place').value = button.dataset.place;
+  });
+}
+function currencySymbol(currency) {
+  return new Intl.NumberFormat('es-CR',{style:'currency',currency,currencyDisplay:'narrowSymbol'})
+    .formatToParts(0).find(part => part.type === 'currency').value;
+}
+document.addEventListener('click', event => {
+  const button = event.target.closest('button[data-action]');
+  if (!button || busy) return;
+  const session = Store.active();
+  const {action:command,id:target,view} = button.dataset;
+  switch (command) {
+    case 'close': sheet.close(); break;
+    case 'theme': {
+      const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      commit(data => {data.theme = mode;}, mode === 'dark' ? 'Modo oscuro activado' : 'Modo claro activado');
+      break;
+    }
+    case 'navigate': navigate(view); break;
+    case 'new-session': openNewSession(); break;
+    case 'sessions': openSessions(); break;
+    case 'edit-session': openEditSession(session); break;
+    case 'use-session':
+      commit(data => {data.activeId = Store.sessionById(data,target).id;},'Sesión abierta',activeRouteReset);
+      break;
+    case 'add-person': openPerson(session); break;
+    case 'edit-person': openPerson(session,session.people.find(person => person.id === target)); break;
+    case 'person-detail': navigate('person',target); break;
+    case 'place-detail': navigate('place',target,button.querySelector('strong').textContent); break;
+    case 'add-expense': openExpense(session); break;
+    case 'edit-expense': {
+      const expense = session.expenses.find(entry => entry.id === target);
+      if (expense) openExpense(session,expense);
+      break;
+    }
+    case 'delete-expense':
+      commit(data => {
+        const current = Store.sessionById(data,session.id);
+        const index = current.expenses.findIndex(entry => entry.id === target);
+        if (index < 0) throw new Error('El gasto ya se eliminó.');
+        [current.lastDeleted] = current.expenses.splice(index,1);
+      },'Gasto eliminado. Puedes deshacerlo.');
+      break;
+    case 'undo': case 'dismiss-undo':
+      commit(data => {
+        const current = Store.sessionById(data,session.id);
+        if (!current.lastDeleted || current.lastDeleted.id !== session.lastDeleted?.id) throw new Error('El aviso cambió en otra pestaña.');
+        if (command === 'undo') current.expenses.push(current.lastDeleted);
+        delete current.lastDeleted;
+      },command === 'undo' ? 'Gasto restaurado' : '');
+      break;
+    case 'hide-toast': drawUndo(); break;
+  }
+});
+app.addEventListener('input',event => {
+  const field = {'filter-query':'query','filter-from':'from','filter-to':'to','filter-group':'group'}[event.target.id];
+  if (field && Store.active()) {
+    filterState[field] = event.target.value;
+    drawFiltered(Store.active());
+  }
+});
+sheet.addEventListener('close', () => {
+  if (!sheet.open) restoreFocus(sheetOpener);
+});
+function restoreFocus(opener) {
+  if (!opener) return;
+  if (opener.isConnected) {opener.focus({preventScroll:true}); return;}
+  const {action:command,id:target} = opener.dataset;
+  const replacement = [...document.querySelectorAll('[data-action]')].find(button =>
+    button.dataset.action === command && button.dataset.id === target);
+  (replacement ?? $('#view-heading') ?? $('#session-title'))?.focus({preventScroll:true});
+}
+$('#brand-icon').innerHTML = icon('logo');
+systemTheme.addEventListener('change',drawTheme);
+addEventListener('storage', event => {
+  if (event.key !== Store.key && event.key !== null) return;
+  try { Store.refresh(); activeRouteReset(); draw(); }
+  catch { announce('No se pudieron leer los datos locales.'); }
+});
+draw();
+if (Store.initialError) {
+  $('#toast').hidden = false;
+  $('#toast').innerHTML = '<span>No se pudo leer el almacenamiento local.</span>' + iconButton('Cerrar aviso','hide-toast','close');
+}
+
+function attachManifest() {
+  const image = document.createElement('canvas');
+  const context = image.getContext('2d');
+  if (!context) return;
+  const manifestIcons = [192,512].map(size => {
+    image.width = image.height = size;
+    context.scale(size / 192,size / 192);
+    context.fillStyle = '#334cce';
+    context.fillRect(0,0,192,192);
+    context.strokeStyle = '#fff';
+    context.lineWidth = 7;
+    context.lineCap = 'round';
+    context.beginPath();
+    context.roundRect(42,57,108,78,16);
+    context.moveTo(42,82);
+    context.lineTo(150,82);
+    context.moveTo(62,109);
+    context.lineTo(86,109);
+    context.moveTo(116,109);
+    context.lineTo(129,109);
+    context.stroke();
+    return {src:image.toDataURL(),sizes:size + 'x' + size,type:'image/png'};
+  });
+  function link(rel, href) {
+    const element = document.createElement('link');
+    element.rel = rel;
+    element.href = href;
+    document.head.append(element);
+  }
+  link('apple-touch-icon',manifestIcons[0].src);
+  link('icon',manifestIcons[0].src);
+  if (/^https?:$/.test(location.protocol)) {
+    const start = new URL(location.href);
+    start.search = start.hash = '';
+    const manifest = {id:start.href,name:'Gasto Claro',short_name:'Gasto Claro',lang:'es-CR',
+      start_url:start.href,scope:new URL('.',start).href,display:'standalone',
+      theme_color:'#f5f6fa',background_color:'#f5f6fa',icons:manifestIcons};
+    link('manifest','data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest)));
+  }
+}
+if (typeof CanvasRenderingContext2D.prototype.roundRect === 'function') attachManifest();
+</script>
+<script id="unit-tests">
+'use strict';
+/* Open the file with ?tests=1 to run these tests without touching saved sessions. */
+if (new URLSearchParams(location.search).get('tests') === '1') {
+  const results = [];
+  function test(name,check) {
+    try {
+      if (!check()) throw new Error('Resultado inesperado');
+      results.push({name,passed:true});
+    } catch (error) {results.push({name,passed:false,error:error.message});}
+  }
+  test('Interpreta coma y punto decimal en céntimos', () =>
+    Domain.parseMinor('12,30',2) === 1230 && Domain.parseMinor('0.01',2) === 1);
+  test('Rechaza notación exponencial, negativos y precisión excesiva', () =>
+    ['1e2','-5','1,001','1.200,00','12,'].every(text => Domain.parseMinor(text,2) === null));
+  test('Respeta el límite de enteros seguros', () =>
+    Domain.parseMinor('90071992547409,91',2) === Number.MAX_SAFE_INTEGER &&
+    Domain.parseMinor('90071992547409,92',2) === null);
+  test('Admite monedas de cero y tres decimales', () =>
+    Domain.currencyDigits('JPY') === 0 && Domain.currencyDigits('KWD') === 3 &&
+    Domain.parseMinor('81',0) === 81 && Domain.parseMinor('81,3',0) === null &&
+    Domain.parseMinor('81,302',3) === 81302);
+  test('Divide exactamente y asigna un residuo estable por comprador', () => {
+    const parts = Domain.split(100,['c','b','a','a']);
+    return parts.size === 3 && parts.get('a') === 34n && parts.get('b') === 33n && parts.get('c') === 33n
+      && Domain.split(2,['x']).get('x') === 2n && Domain.split(2,[]).size === 0;
+  });
+  test('Conserva el total al dividir uno o muchos céntimos', () =>
+    [1,2,9,100,Number.MAX_SAFE_INTEGER].every(amount => {
+      const values = [...Domain.split(amount,['e','d','c','b','a']).values()];
+      return values.reduce((sum,part) => sum + part,0n) === BigInt(amount)
+        && values[0] - values.at(-1) <= 1n;
+    }));
+  test('Aplica alertas al 80 % y al 100 % exactos', () =>
+    Domain.budgetStatus(10000,7999n).warning === '' &&
+    Domain.budgetStatus(10000,8000n).warning === 'warn' &&
+    Domain.budgetStatus(10000,9999n).warning === 'warn' &&
+    Domain.budgetStatus(10000,10000n).warning === 'danger');
+  test('Muestra saldo negativo y maneja presupuesto cero', () =>
+    Domain.budgetStatus(100,150n).remaining === -50n &&
+    Domain.budgetStatus(0,0n).warning === '' &&
+    Domain.budgetStatus(0,1n).warning === 'danger' &&
+    Domain.budgetStatus(0,1n).percent === null);
+  test('Recalcula al agregar, editar, eliminar y restaurar', () => {
+    const session = {people:[{id:'a',budget:100},{id:'b',budget:200}],expenses:[]};
+    const expense = {amount:35,buyers:['b','a']};
+    session.expenses.push(expense);
+    if (Domain.totals(session).people.get('a') !== 18n) return false;
+    expense.amount = 54;
+    if (Domain.totals(session).people.get('a') !== 27n) return false;
+    const removed = session.expenses.pop();
+    if (Domain.totals(session).spent !== 0n) return false;
+    session.expenses.push(removed);
+    const totals = Domain.totals(session);
+    return totals.spent === 54n && totals.budget === 300n && totals.people.get('b') === 27n;
+  });
+  test('Suma montos que exceden el rango seguro sin perder céntimos', () => {
+    const session = {people:[{id:'a',budget:0}],expenses:[
+      {amount:Number.MAX_SAFE_INTEGER,buyers:['a']},{amount:2,buyers:['a']}
+    ]};
+    return Domain.totals(session).people.get('a') === 9007199254740993n;
+  });
+  test('Agrupa lugares con cambios de mayúsculas o espacios', () =>
+    Domain.placeKey('  Plaza   Real ') === Domain.placeKey('PLAZA REAL'));
+  test('Conserva importes negativos de menos de una unidad al formatear', () =>
+    money(-1n,'CRC').includes('-') && money(-1n,'CRC').includes('01'));
+  const passed = results.filter(result => result.passed).length;
+  const panel = document.createElement('section');
+  panel.id = 'test-results';
+  panel.dataset.passed = String(passed);
+  panel.dataset.total = String(results.length);
+  panel.className = 'empty';
+  panel.innerHTML = '<h1>Pruebas de Gasto Claro</h1><p>' + passed + ' de ' + results.length +
+    ' aprobadas</p><ul>' + results.map(result => '<li>' + (result.passed ? '✓ ' : '✗ ') +
+    escape(result.name) + (result.error ? ' · ' + escape(result.error) : '') + '</li>').join('') + '</ul>';
+  app.replaceChildren(panel);
+}
+</script>
+</body>
+</html>
